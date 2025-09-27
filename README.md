@@ -25,7 +25,7 @@ In evil hangman, the computer doesn’t pick a word up front — it keeps changi
 Clone the repository and run the game:
 
 ```bash
-git clone https://github.com/yourusername/evil-hangman-rust.git
+git clone https://github.com/EyeBrawler/evil-hangman-rust.git
 cd evil-hangman-rust
 cargo run
 ```
