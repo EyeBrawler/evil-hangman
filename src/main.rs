@@ -3,134 +3,117 @@ mod word_families;
 use word_families::WordFamilies;
 
 use std::collections::HashSet;
-use std::fs::File;
+use std::io;
 use std::io::Write;
-use std::io::{self, BufRead};
-use std::path::Path;
 
 fn main() {
-    let filename = "data/dictionary.txt"; // File
+    // Embed the dictionary at compile time
+    let dictionary_str: &'static str = include_str!("../data/dictionary.txt");
 
-    match read_words_to_vector(filename) {
-        //If the result is okay, continue by collecting word lengths
-        Ok(all_words) => {
-            loop {
-                let word_lengths = build_word_length_set(&all_words);
+    // Convert it to a vector of strings, one per line
+    let all_words: Vec<String> = dictionary_str
+        .lines()
+        .map(|line| line.trim().to_string())
+        .collect();
 
-                let game_word_length = get_user_word_length(&word_lengths);
+    println!("Loaded {} words.", all_words.len());
 
-                let mut guesses_remaining = get_user_number_of_guesses();
 
-                let display_words_remaining = get_user_display_preference();
+    loop {
+        let word_lengths = build_word_length_set(&all_words);
 
-                let mut game_words = extract_words_of_length(&all_words, game_word_length);
+        let game_word_length = get_user_word_length(&word_lengths);
 
-                let mut used_letters: Vec<char> = vec![];
-                let mut user_wins = false;
+        let mut guesses_remaining = get_user_number_of_guesses();
 
-                //The Main Loop for one game
-                while guesses_remaining > 0 {
-                    //Creating a custom word families structure to store word families and their respective
-                    //words. For each time the user guesses a value, a new set of families will be
-                    //generated.
-                    let word_families = partition_words(&game_words, &used_letters);
+        let display_words_remaining = get_user_display_preference();
 
-                    //Setting the new set of game words based on the partitioning that just happened
-                    //The second index of the tuple returned by the retreive family function is the
-                    //list of words in the family.
-                    let selected_family_tuple = retrieve_family(&word_families);
-                    game_words = selected_family_tuple.1;
+        let mut game_words = extract_words_of_length(&all_words, game_word_length);
 
-                    //The first index of the tuple the selected word family (AKA the word with only the
-                    //guessed letters shown.) The value is being stored in a variable for ease of use.
-                    let word_pattern = selected_family_tuple.0;
+        let mut used_letters: Vec<char> = vec![];
+        let mut user_wins = false;
 
-                    //Printing the information for the current turn
-                    println!("Guesses Remaining: {}", guesses_remaining);
+        //The Main Loop for one game
+        while guesses_remaining > 0 {
+            //Creating a custom word families structure to store word families and their respective
+            //words. For each time the user guesses a value, a new set of families will be
+            //generated.
+            let word_families = partition_words(&game_words, &used_letters);
 
-                    if display_words_remaining {
-                        println!("Words Remaining: {}", game_words.len());
-                    }
+            //Setting the new set of game words based on the partitioning that just happened
+            //The second index of the tuple returned by the retrieve family function is the
+            //list of words in the family.
+            let selected_family_tuple = retrieve_family(&word_families);
+            game_words = selected_family_tuple.1;
 
-                    //Creating a formatted string with all the letters the user has guessed.
-                    let used_letters_string = used_letters
-                        .iter()
-                        .map(|&c| c.to_string())
-                        .collect::<Vec<String>>()
-                        .join(" ");
-                    println!("Used Letters: {}", used_letters_string);
+            //The first index of the tuple the selected word family (AKA the word with only the
+            //guessed letters shown.) The value is being stored in a variable for ease of use.
+            let word_pattern = selected_family_tuple.0;
 
-                    //Print the name of the largest word family.
-                    //The other value
-                    println!("Word: {}", word_pattern);
+            //Printing the information for the current turn
+            println!("Guesses Remaining: {}", guesses_remaining);
 
-                    let user_guess = get_user_guess();
+            if display_words_remaining {
+                println!("Words Remaining: {}", game_words.len());
+            }
 
-                    if word_pattern == game_words[0] {
-                        user_wins = true;
-                        break;
-                    }
+            //Creating a formatted string with all the letters the user has guessed.
+            let used_letters_string = used_letters
+                .iter()
+                .map(|&c| c.to_string())
+                .collect::<Vec<String>>()
+                .join(" ");
+            println!("Used Letters: {}", used_letters_string);
 
-                    if used_letters.contains(&user_guess) {
-                        println!("You already guessed that letter!");
-                    } else {
-                        used_letters.push(user_guess);
+            //Print the name of the largest word family.
+            //The other value
+            println!("Word: {}", word_pattern);
 
-                        //Sorting the list of used letters so that it is in alphabetical orders
-                        used_letters.sort();
+            let user_guess = get_user_guess();
 
-                        //Partitioning Again
-                        // Check if the new guess completes the word
-                        let new_word_families = partition_words(&game_words, &used_letters);
-                        let new_selected_family = retrieve_family(&new_word_families);
-                        let new_word_pattern = new_selected_family.0;
+            if word_pattern == game_words[0] {
+                user_wins = true;
+                break;
+            }
 
-                        if new_word_pattern == game_words[0] {
-                            user_wins = true;
-                            break;
-                        }
+            if used_letters.contains(&user_guess) {
+                println!("You already guessed that letter!");
+            } else {
+                used_letters.push(user_guess);
 
-                        guesses_remaining -= 1;
-                    }
+                //Sorting the list of used letters so that it is in alphabetical orders
+                used_letters.sort();
 
-                    //Print Blank Lines for ease of seeing
-                    println!("\n");
-                }
+                //Partitioning Again
+                // Check if the new guess completes the word
+                let new_word_families = partition_words(&game_words, &used_letters);
+                let new_selected_family = retrieve_family(&new_word_families);
+                let new_word_pattern = new_selected_family.0;
 
-                if user_wins {
-                    println!("You Win! Congratulations!");
-                } else {
-                    println!("You lose!");
-                }
-                println!("The word was {}.", game_words[0]);
-
-                //Asking the user if they want to play again
-                if !play_again_prompt() {
+                if new_word_pattern == game_words[0] {
+                    user_wins = true;
                     break;
                 }
+
+                guesses_remaining -= 1;
             }
+
+            //Print Blank Lines for ease of seeing
+            println!("\n");
         }
-        Err(e) => {
-            eprintln!("Error reading file: {}", e);
+
+        if user_wins {
+            println!("You Win! Congratulations!");
+        } else {
+            println!("You lose!");
+        }
+        println!("The word was {}.", game_words[0]);
+
+        //Asking the user if they want to play again
+        if !play_again_prompt() {
+            break;
         }
     }
-}
-
-//This function takees in a file path and returns a vector of strings wrapped within a result (just
-//in case something with the file reading goes wrong). The where synatax is futher used for
-//specifying it is a path
-fn read_words_to_vector<P>(filename: P) -> io::Result<Vec<String>>
-where
-    P: AsRef<Path>,
-{
-    let file = File::open(filename)?;
-    let reader = io::BufReader::new(file);
-
-    // Collect each line into a vector of strings
-    // The lines are collected safely with a result so that an error can be propagated to the
-    // function.
-    let lines: Vec<String> = reader.lines().collect::<Result<_, _>>()?;
-    Ok(lines)
 }
 
 fn build_word_length_set(all_words: &[String]) -> HashSet<usize> {
@@ -153,7 +136,7 @@ fn get_user_word_length(word_lengths: &HashSet<usize>) -> usize {
         //Getting user input
         io::stdin().read_line(&mut input).unwrap();
 
-        //Parsing the input as a usize
+        //Parsing the input as an usize
         match input.trim().parse::<usize>() {
             Ok(input_num) => {
                 if word_lengths.contains(&input_num) {
@@ -172,7 +155,7 @@ fn get_user_word_length(word_lengths: &HashSet<usize>) -> usize {
     }
 }
 
-//Returns a 32 bit unsigned integer representing the number of guesses the user would like for the
+//Returns a 32-bit unsigned integer representing the number of guesses the user would like for the
 //game.
 fn get_user_number_of_guesses() -> u32 {
     let mut input = String::new();
@@ -188,7 +171,7 @@ fn get_user_number_of_guesses() -> u32 {
 
         io::stdin().read_line(&mut input).unwrap();
 
-        //Parsing as a u32
+        //Parsing as an u32
         match input.trim().parse::<u32>() {
             Ok(input_num) => {
                 return input_num;
