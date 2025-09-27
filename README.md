@@ -1,7 +1,7 @@
 # Evil Hangman (Rust)
 
 An implementation of **Evil Hangman** written in Rust.  
-Unlike traditional hangman, where the word is chosen up front, this version cheats by dynamically changing the possible word family after each guess, always trying to avoid revealing letters until it has no choice.
+In evil hangman, the computer doesn’t pick a word up front — it keeps changing the word pool to maximize difficulty until forced to commit.
 
 ## 📖 How It Works
 - The game loads a dictionary of words from `data/dictionary.txt`.
@@ -64,3 +64,22 @@ data/dictionary.txt
 ```
 This should be a plain text file with one word per line.
 You can replace it with your own word list to customize gameplay.
+
+## 🛠 Project Structure
+```
+.
+├── src
+│   ├── main.rs
+│   └── word_families.rs
+├── data
+│   └── dictionary.txt
+└── Cargo.toml
+```
+
+## 📜 License
+
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
+
+You are free to use, modify, and distribute this software, but any derivative work must also be licensed under the GPL-3.0.
+
+See the [LICENSE](LICENSE) file for the full text.
