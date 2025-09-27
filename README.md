@@ -3,7 +3,7 @@
 An implementation of **Evil Hangman** written in Rust.  
 In evil hangman, the computer doesn’t pick a word up front — it keeps changing the word pool to maximize difficulty until forced to commit.
 
-## 📖 How It Works
+## How It Works
 - The game loads a dictionary of words from `data/dictionary.txt`.
 - You choose:
   - The **word length**.
@@ -11,11 +11,11 @@ In evil hangman, the computer doesn’t pick a word up front — it keeps changi
   - Whether you’d like to see the number of **possible words remaining**.
 - After each guess:
   - The program partitions the remaining possible words into **families** (patterns of revealed letters and underscores).
-  - It then **chooses the largest family**, keeping as many possibilities hidden as possible.
+  - It then **chooses the largest family**, keeping as many opportunities hidden as possible.
 - You win if you guess the full word before running out of guesses.  
 - If not, the game reveals the "final" word from the remaining family.
   
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - [Rust](https://www.rust-lang.org/tools/install) (latest stable recommended)
@@ -30,7 +30,7 @@ cd evil-hangman-rust
 cargo run
 ```
 
-## 🎮 Example Gameplay
+## Example Gameplay
 ```
 Loaded 127142 words.
 Enter the number of letters you would like in the guessing word: 5
@@ -50,14 +50,14 @@ Word: ___e_
 ...
 ```
 
-## ✨ Features
+## Features
 * Dictionary-driven gameplay (easily swap out your own dictionary.txt).
 * Dynamic word families to keep the game difficult.
 * Input validation (no repeated guesses, only single alphabetic characters).
 * Option to display the number of words still in play.
 * Replay support.
 
-## 📂 Dictionary
+## Dictionary
 The game expects a file at:
 ```bash
 data/dictionary.txt
@@ -65,7 +65,7 @@ data/dictionary.txt
 This should be a plain text file with one word per line.
 You can replace it with your own word list to customize gameplay.
 
-## 🛠 Project Structure
+## Project Structure
 ```
 .
 ├── src
@@ -76,7 +76,7 @@ You can replace it with your own word list to customize gameplay.
 └── Cargo.toml
 ```
 
-## 📜 License
+## License
 
 This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
 
