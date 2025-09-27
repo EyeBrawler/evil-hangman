@@ -1,0 +1,32 @@
+# Build artifacts
+/target/
+
+# Backup & temp files
+*.rs.bk
+*.swp
+*.swo
+*~
+
+# OS-specific cruft
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Ignore the compiled binary if built in root
+evil_hangman
+
+# ----------------------------
+# IDEs / Editors
+# ----------------------------
+
+# VS Code
+.vscode/
+
+# IntelliJ / CLion / RustRover
+.idea/
+*.iml
+
+# Other editors
+*.kate-swp
