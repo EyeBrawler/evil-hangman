@@ -28,7 +28,7 @@ impl WordFamilies {
     }
 
     // Provides an iterator over the key-value pairs in the HashMap
-    pub fn iter(&self) -> std::collections::hash_map::Iter<String, Vec<String>> {
+    pub fn iter(&self) -> std::collections::hash_map::Iter<'_, String, Vec<String>> {
         self.data.iter()
     }
 }
